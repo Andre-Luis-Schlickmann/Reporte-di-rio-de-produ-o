@@ -9,6 +9,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SheetJS (Excel .xlsx Export) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -342,9 +344,13 @@
     </div>
 
     <!-- BARRA DE AÇÕES -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-3 pt-3">
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row flex-wrap items-center justify-end gap-3 pt-3">
       <button type="button" onclick="previewReportModal()" class="w-full sm:w-auto px-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm transition">
         <i class="fa-solid fa-eye"></i> Visualizar
+      </button>
+
+      <button type="button" onclick="openExcelModal()" class="w-full sm:w-auto px-6 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm transition">
+        <i class="fa-solid fa-file-excel text-base text-emerald-200"></i> <span>Exportar Excel</span>
       </button>
 
       <button type="button" id="btnSalvarFirebase" onclick="saveReportToFirebase()" class="w-full sm:w-auto px-7 bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm transition">
@@ -357,6 +363,54 @@
     </div>
 
   </main>
+
+  <!-- Modal de Opções de Exportação para Excel -->
+  <div id="modalExcel" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-file-excel"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-base leading-tight">Exportar para Excel (.xlsx)</h3>
+            <p class="text-xs text-slate-500">Gere a planilha formatada em abas</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeExcelModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Opção 1: Apontamento Atual -->
+        <button type="button" onclick="exportCurrentToExcel()" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-start gap-3 group">
+          <div class="p-2.5 bg-emerald-600 text-white rounded-lg group-hover:scale-105 transition shrink-0 mt-0.5">
+            <i class="fa-solid fa-file-arrow-down text-base"></i>
+          </div>
+          <div>
+            <span class="block text-sm font-bold text-slate-800">Exportar Apontamento Atual</span>
+            <span class="block text-xs text-slate-500 leading-relaxed">Gera uma planilha (.xlsx) deste turno com abas separadas de Resumo, Produção, Refugo, Paradas e Equipe.</span>
+          </div>
+        </button>
+
+        <!-- Opção 2: Histórico Completo da Nuvem -->
+        <button type="button" id="btnExportHistory" onclick="exportHistoryToExcel()" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition flex items-start gap-3 group">
+          <div class="p-2.5 bg-blue-700 text-white rounded-lg group-hover:scale-105 transition shrink-0 mt-0.5">
+            <i class="fa-solid fa-database text-base"></i>
+          </div>
+          <div>
+            <span class="block text-sm font-bold text-slate-800">Exportar Histórico Consolidado</span>
+            <span class="block text-xs text-slate-500 leading-relaxed">Baixa todos os registros salvos na nuvem em uma base consolidada para Power BI e análise de gestão.</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="mt-5 flex justify-end">
+        <button type="button" onclick="closeExcelModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal de Visualização do Relatório -->
   <div id="modalReport" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
@@ -897,6 +951,215 @@
       document.getElementById('modalReport').classList.remove('flex');
     }
 
+    function openExcelModal() {
+      const modal = document.getElementById('modalExcel');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeExcelModal() {
+      const modal = document.getElementById('modalExcel');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function exportCurrentToExcel() {
+      try {
+        if (typeof XLSX === 'undefined') {
+          showToast("Biblioteca de Excel não carregada. Verifique sua conexão.", false);
+          return;
+        }
+
+        const dataTurno = document.getElementById('inputData').value;
+        const turno = document.getElementById('inputTurno').value;
+        const lider = document.getElementById('inputLider').value || 'Não informado';
+
+        // 1. Resumo do Turno
+        const rowsResumo = [
+          ['Data do Turno', 'Turno', 'Líder Responsável', 'Total Produzido (un)', 'Total Refugos (un)', 'Teve Setup?', 'Teve Manutenção?', 'Faltas', 'Atestados', 'Atrasos', 'Observações Equipe', 'Ocorrências', 'Pendências']
+        ];
+
+        let totalPecas = calcTotal();
+        let totalRefugos = 0;
+        document.querySelectorAll('.item-qual').forEach(item => {
+          totalRefugos += parseInt(item.querySelector('.qual-qtd').value) || 0;
+        });
+
+        let faltas = 0, atestados = 0, atrasos = 0;
+        if (toggles.hr) {
+          document.querySelectorAll('.item-hr').forEach(item => {
+            const t = item.querySelector('.hr-tipo').value;
+            if (t === 'Falta') faltas++;
+            if (t === 'Atestado') atestados++;
+            if (t === 'Atraso') atrasos++;
+          });
+        }
+        const obsRh = document.getElementById('textHrObs') ? document.getElementById('textHrObs').value.trim() : '';
+        const ocorrencias = toggles.occur ? document.getElementById('textOccur').value.trim() : '';
+        const pendencias = toggles.pend ? document.getElementById('textPend').value.trim() : '';
+
+        rowsResumo.push([
+          formatDateBR(dataTurno),
+          turno,
+          lider,
+          totalPecas,
+          totalRefugos,
+          toggles.setup ? 'Sim' : 'Não',
+          toggles.maint ? 'Sim' : 'Não',
+          faltas,
+          atestados,
+          atrasos,
+          obsRh,
+          ocorrencias,
+          pendencias
+        ]);
+
+        // 2. Produção Detalhada
+        const rowsProd = [
+          ['Data do Turno', 'Turno', 'Líder', 'Família de Produto', 'Código / Modelo', 'Quantidade (un)']
+        ];
+        const catLabels = {
+          cubas: 'Cubas / Calhas',
+          pisos: 'Pisos',
+          banheiras: 'Banheiras',
+          tabuas: 'Tábuas',
+          desumidificadores: 'Desumidificadores',
+          outros: 'Outros'
+        };
+
+        Object.keys(catLabels).forEach(cat => {
+          const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
+          rows.forEach(r => {
+            const modelo = r.querySelector('.input-modelo').value.trim();
+            const qtd = parseInt(r.querySelector('.input-qtd').value) || 0;
+            if (qtd > 0 || modelo !== '') {
+              rowsProd.push([
+                formatDateBR(dataTurno),
+                turno,
+                lider,
+                catLabels[cat],
+                modelo || 'Padrão',
+                qtd
+              ]);
+            }
+          });
+        });
+
+        // 3. Refugo e Qualidade
+        const rowsRefugo = [
+          ['Data do Turno', 'Turno', 'Líder', 'Família / Produto', 'Código da Peça', 'Defeito / Motivo', 'Quantidade (un)']
+        ];
+        if (toggles.qual) {
+          document.querySelectorAll('.item-qual').forEach(item => {
+            const prod = item.querySelector('.qual-prod').value.trim();
+            const codEl = item.querySelector('.qual-codigo');
+            const cod = codEl ? codEl.value.trim() : '';
+            const def = item.querySelector('.qual-def').value.trim();
+            const qtd = parseInt(item.querySelector('.qual-qtd').value) || 0;
+            if (prod || cod || def || qtd > 0) {
+              rowsRefugo.push([
+                formatDateBR(dataTurno),
+                turno,
+                lider,
+                prod || 'Não especificado',
+                cod || '-',
+                def || 'Não informado',
+                qtd
+              ]);
+            }
+          });
+        }
+
+        // 4. Paradas e Setups
+        const rowsParadas = [
+          ['Data do Turno', 'Turno', 'Líder', 'Tipo', 'Equipamento / Máquina', 'Tempo (min)', 'Status', 'Motivo / Descrição']
+        ];
+        if (toggles.setup) {
+          document.querySelectorAll('.item-setup').forEach(item => {
+            const maq = item.querySelector('.setup-maq').value.trim();
+            const tempo = item.querySelector('.setup-tempo').value.trim();
+            const obs = item.querySelector('.setup-obs').value.trim();
+            if (maq || tempo || obs) {
+              rowsParadas.push([
+                formatDateBR(dataTurno),
+                turno,
+                lider,
+                'Setup',
+                maq || '-',
+                tempo || '-',
+                '-',
+                obs || '-'
+              ]);
+            }
+          });
+        }
+        if (toggles.maint) {
+          document.querySelectorAll('.item-maint').forEach(item => {
+            const maq = item.querySelector('.maint-maq').value.trim();
+            const tempo = item.querySelector('.maint-tempo').value.trim();
+            const status = item.querySelector('.maint-status').value;
+            const motivo = item.querySelector('.maint-motivo').value.trim();
+            if (maq || tempo || motivo) {
+              rowsParadas.push([
+                formatDateBR(dataTurno),
+                turno,
+                lider,
+                'Manutenção',
+                maq || '-',
+                tempo || '-',
+                status,
+                motivo || '-'
+              ]);
+            }
+          });
+        }
+
+        // 5. Gestão de Equipe
+        const rowsEquipe = [
+          ['Data do Turno', 'Turno', 'Líder', 'Tipo de Ausência', 'Colaborador']
+        ];
+        if (toggles.hr) {
+          document.querySelectorAll('.item-hr').forEach(item => {
+            const tipo = item.querySelector('.hr-tipo').value;
+            const nome = item.querySelector('.hr-nome').value.trim();
+            if (nome) {
+              rowsEquipe.push([
+                formatDateBR(dataTurno),
+                turno,
+                lider,
+                tipo,
+                nome
+              ]);
+            }
+          });
+        }
+
+        // Criando a Pasta de Trabalho (Workbook)
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsResumo), 'Resumo_Turno');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsProd), 'Producao_Detalhada');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsRefugo), 'Refugo_Qualidade');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsParadas), 'Paradas_e_Setups');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsEquipe), 'Gestao_Equipe');
+
+        const cleanDate = (dataTurno || 'hoje').replace(/-/g, '');
+        const cleanTurno = (turno || 'turno').replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = `Reporte_Producao_TBX_${cleanDate}_${cleanTurno}.xlsx`;
+
+        XLSX.writeFile(wb, filename);
+        showToast("Planilha Excel gerada com sucesso!", true);
+        closeExcelModal();
+
+      } catch (err) {
+        console.error("Erro ao gerar Excel:", err);
+        showToast("Erro ao gerar arquivo Excel.", false);
+      }
+    }
+
     function copyWhatsAppReport() {
       const txt = generateReportText();
       
@@ -961,7 +1224,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Credenciais oficiais do projeto
     const firebaseConfig = typeof __firebase_config !== 'undefined'
@@ -1176,11 +1439,180 @@
 
       } catch (error) {
         console.error("Erro ao salvar no Firestore:", error);
-        showToast("Erro ao gravar dados no Firebase. Tente novamente.", false);
+        if (error.code === 'permission-denied' || error.message?.includes('insufficient permissions')) {
+          showToast("Permissão negada no Firebase. Libere as Regras (Rules) no console.", false);
+        } else {
+          showToast("Erro ao gravar dados no Firebase. Tente novamente.", false);
+        }
         btn.disabled = false;
         btn.classList.remove('opacity-75', 'cursor-not-allowed');
         icon.className = "fa-solid fa-triangle-exclamation text-amber-300";
         text.innerText = "Erro ao Salvar";
+      }
+    };
+
+    window.exportHistoryToExcel = async function() {
+      const btn = document.getElementById('btnExportHistory');
+      if (!currentUser) {
+        showToast("Aguardando conexão com a nuvem...", false);
+        return;
+      }
+
+      try {
+        if (typeof XLSX === 'undefined') {
+          showToast("Biblioteca de Excel não carregada.", false);
+          return;
+        }
+
+        btn.disabled = true;
+        btn.classList.add('opacity-75');
+
+        showToast("Buscando registros na nuvem...", true);
+        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'reportes_producao');
+        const querySnapshot = await getDocs(colRef);
+
+        if (querySnapshot.empty) {
+          showToast("Nenhum registro encontrado na nuvem para exportar.", false);
+          btn.disabled = false;
+          btn.classList.remove('opacity-75');
+          return;
+        }
+
+        const rowsResumo = [
+          ['ID Registro', 'Carimbo de Data/Hora', 'Data do Turno', 'Turno', 'Líder', 'Total Peças', 'Total Refugos', 'Teve Setup?', 'Teve Manutenção?', 'Faltas', 'Atestados', 'Atrasos', 'Observações Equipe', 'Ocorrências', 'Pendências']
+        ];
+        const rowsProd = [
+          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Família de Produto', 'Código / Modelo', 'Quantidade (un)']
+        ];
+        const rowsRefugo = [
+          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Produto', 'Código da Peça', 'Defeito / Motivo', 'Quantidade (un)']
+        ];
+        const rowsParadas = [
+          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Tipo', 'Equipamento / Máquina', 'Tempo (min)', 'Status', 'Motivo / Descrição']
+        ];
+        const rowsEquipe = [
+          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Tipo de Ausência', 'Colaborador']
+        ];
+
+        querySnapshot.forEach(docSnap => {
+          const rec = docSnap.data();
+          const docId = docSnap.id;
+          const dtStr = rec.dataTurno || '';
+
+          // 1. Resumo
+          rowsResumo.push([
+            docId,
+            rec.criadoEm || '',
+            dtStr,
+            rec.turno || '',
+            rec.lider || '',
+            rec.totalPecas || 0,
+            rec.totalRefugos || 0,
+            rec.teveSetup ? 'Sim' : 'Não',
+            rec.teveManutencao ? 'Sim' : 'Não',
+            rec.equipe?.faltas || 0,
+            rec.equipe?.atestados || 0,
+            rec.equipe?.atrasos || 0,
+            rec.equipe?.observacoes || '',
+            rec.ocorrencias || '',
+            rec.pendencias || ''
+          ]);
+
+          // 2. Produção
+          if (Array.isArray(rec.itensProduzidos)) {
+            rec.itensProduzidos.forEach(p => {
+              rowsProd.push([
+                docId,
+                dtStr,
+                rec.turno || '',
+                rec.lider || '',
+                p.familia || '',
+                p.modelo || '',
+                p.quantidade || 0
+              ]);
+            });
+          }
+
+          // 3. Refugos
+          if (Array.isArray(rec.refugos)) {
+            rec.refugos.forEach(q => {
+              rowsRefugo.push([
+                docId,
+                dtStr,
+                rec.turno || '',
+                rec.lider || '',
+                q.produto || '',
+                q.codigo || '',
+                q.defeito || '',
+                q.quantidade || 0
+              ]);
+            });
+          }
+
+          // 4. Setups e Manutenções
+          if (Array.isArray(rec.setups)) {
+            rec.setups.forEach(s => {
+              rowsParadas.push([
+                docId,
+                dtStr,
+                rec.turno || '',
+                rec.lider || '',
+                'Setup',
+                s.maquina || '',
+                s.tempo || '',
+                '-',
+                s.observacao || ''
+              ]);
+            });
+          }
+          if (Array.isArray(rec.manutencoes)) {
+            rec.manutencoes.forEach(m => {
+              rowsParadas.push([
+                docId,
+                dtStr,
+                rec.turno || '',
+                rec.lider || '',
+                'Manutenção',
+                m.equipamento || '',
+                m.tempo || '',
+                m.status || '',
+                m.motivo || ''
+              ]);
+            });
+          }
+
+          // 5. Equipe
+          if (Array.isArray(rec.equipe?.ausencias)) {
+            rec.equipe.ausencias.forEach(a => {
+              rowsEquipe.push([
+                docId,
+                dtStr,
+                rec.turno || '',
+                rec.lider || '',
+                a.tipo || '',
+                a.colaborador || ''
+              ]);
+            });
+          }
+        });
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsResumo), 'Resumo_Turnos');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsProd), 'Producao_Detalhada');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsRefugo), 'Refugo_Qualidade');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsParadas), 'Paradas_e_Setups');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsEquipe), 'Gestao_Equipe');
+
+        XLSX.writeFile(wb, 'Historico_Consolidado_Producao_TBX.xlsx');
+        showToast("Histórico completo exportado com sucesso!", true);
+        closeExcelModal();
+
+      } catch (err) {
+        console.error("Erro ao exportar histórico:", err);
+        showToast("Erro ao exportar histórico da nuvem.", false);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-75');
       }
     };
 
