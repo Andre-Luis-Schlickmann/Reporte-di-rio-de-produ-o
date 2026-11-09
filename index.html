@@ -49,7 +49,7 @@
           </svg>
         </div>
         <div>
-          <h1 class="font-bold text-sm sm:text-lg leading-tight text-white">Reporte Diário de Produção</h1>
+          <h1 class="font-bold text-sm sm:text-lg leading-tight text-white" id="mainTitle">Reporte Diário de Produção (Nacionais)</h1>
           <p class="text-[11px] sm:text-xs text-blue-200">Apontamento Rápido de Chão de Fábrica</p>
         </div>
       </div>
@@ -66,6 +66,20 @@
   </header>
 
   <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+
+    <!-- NOVO: SELEÇÃO DE MODO -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 lg:p-6 mb-2">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-800">Setor / Tipo de Apontamento</h2>
+          <p class="text-xs text-slate-500">Selecione qual operação você está reportando agora.</p>
+        </div>
+        <div class="inline-flex rounded-lg shadow-sm p-1 bg-slate-100 border border-slate-200">
+          <button type="button" onclick="setAppMode('nacionais')" id="btn-mode-nac" class="px-6 py-2 text-xs font-bold rounded-md bg-blue-600 text-white shadow transition">Produção Nacionais</button>
+          <button type="button" onclick="setAppMode('estamparia')" id="btn-mode-est" class="px-6 py-2 text-xs font-bold rounded-md bg-transparent text-slate-700 hover:bg-slate-200 transition">Estamparia</button>
+        </div>
+      </div>
+    </section>
 
     <!-- SEÇÃO 1: IDENTIFICAÇÃO DO TURNO -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 lg:p-6">
@@ -110,10 +124,68 @@
         </span>
       </div>
 
+      <!-- Seleção de Processos Ativos (Apenas Nacionais) -->
+      <div id="ui-nacionais-toggles" class="mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200 hidden mode-nac-only">
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-3">Quais famílias de produto foram produzidas neste turno?</label>
+        <div class="flex flex-wrap gap-4">
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition -ml-2">
+            <input type="checkbox" id="chk_cubas" value="cubas" onchange="toggleProcess('cubas')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Cubas / Calhas</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_pisos" value="pisos" onchange="toggleProcess('pisos')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Pisos</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_banheiras" value="banheiras" onchange="toggleProcess('banheiras')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Banheiras</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_tabuas" value="tabuas" onchange="toggleProcess('tabuas')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Tábuas</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_desumidificadores" value="desumidificadores" onchange="toggleProcess('desumidificadores')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Desumidificadores</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_outros" value="outros" onchange="toggleProcess('outros')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Outros</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Seleção de Processos Ativos (Apenas Estamparia) -->
+      <div id="ui-estamparia-toggles" class="mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200 hidden mode-est-only">
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-3">Quais processos operaram neste turno?</label>
+        <div class="flex flex-wrap gap-4">
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition -ml-2">
+            <input type="checkbox" id="chk_prensa1" value="prensa1" onchange="toggleProcess('prensa1')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Prensa I</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_lavacao1" value="lavacao1" onchange="toggleProcess('lavacao1')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Lavação I</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_forno" value="forno" onchange="toggleProcess('forno')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Forno</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_prensa2" value="prensa2" onchange="toggleProcess('prensa2')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Prensa II</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer hover:bg-slate-200 px-2 py-1 rounded-lg transition">
+            <input type="checkbox" id="chk_lavacao2" value="lavacao2" onchange="toggleProcess('lavacao2')" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Lavação Prod. Acabado</span>
+          </label>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="prodContainer">
         
-        <!-- Cubas / Calhas (29 Códigos) -->
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-cat="cubas">
+        <!-- === INÍCIO BLOCOS NACIONAIS === -->
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-nac" data-cat="cubas">
           <div>
             <div class="flex justify-between items-center mb-2.5">
               <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -128,8 +200,7 @@
           </button>
         </div>
 
-        <!-- Pisos (33 Códigos) -->
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-cat="pisos">
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-nac" data-cat="pisos">
           <div>
             <div class="flex justify-between items-center mb-2.5">
               <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -144,8 +215,7 @@
           </button>
         </div>
 
-        <!-- Banheiras (6 Códigos) -->
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-cat="banheiras">
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-nac" data-cat="banheiras">
           <div>
             <div class="flex justify-between items-center mb-2.5">
               <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -160,8 +230,7 @@
           </button>
         </div>
 
-        <!-- Tábuas (8 Códigos) -->
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-cat="tabuas">
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-nac" data-cat="tabuas">
           <div>
             <div class="flex justify-between items-center mb-2.5">
               <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -176,8 +245,7 @@
           </button>
         </div>
 
-        <!-- Desumidificadores (4 Códigos) -->
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-cat="desumidificadores">
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-nac" data-cat="desumidificadores">
           <div>
             <div class="flex justify-between items-center mb-2.5">
               <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -192,8 +260,7 @@
           </button>
         </div>
 
-        <!-- Outros (Texto Livre) -->
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-cat="outros">
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-nac" data-cat="outros">
           <div>
             <div class="flex justify-between items-center mb-2.5">
               <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -207,6 +274,84 @@
             <i class="fa-solid fa-circle-plus"></i> Adicionar outro modelo
           </button>
         </div>
+        <!-- === FIM BLOCOS NACIONAIS === -->
+
+        <!-- === INÍCIO BLOCOS ESTAMPARIA === -->
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-est" data-cat="prensa1">
+          <div>
+            <div class="flex justify-between items-center mb-2.5">
+              <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-compress text-slate-500"></i> Prensa I
+              </span>
+              <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-0.5 rounded border border-slate-200">Subtotal: <span class="subtotal-cat">0</span> un.</span>
+            </div>
+            <div class="rows-container space-y-2"></div>
+          </div>
+          <button type="button" onclick="addProdRow('prensa1')" class="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition pt-1">
+            <i class="fa-solid fa-circle-plus"></i> Adicionar outro item
+          </button>
+        </div>
+
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-est" data-cat="lavacao1">
+          <div>
+            <div class="flex justify-between items-center mb-2.5">
+              <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-shower text-slate-500"></i> Lavação I
+              </span>
+              <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-0.5 rounded border border-slate-200">Subtotal: <span class="subtotal-cat">0</span> un.</span>
+            </div>
+            <div class="rows-container space-y-2"></div>
+          </div>
+          <button type="button" onclick="addProdRow('lavacao1')" class="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition pt-1">
+            <i class="fa-solid fa-circle-plus"></i> Adicionar outro item
+          </button>
+        </div>
+
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-est" data-cat="forno">
+          <div>
+            <div class="flex justify-between items-center mb-2.5">
+              <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-fire-burner text-slate-500"></i> Forno
+              </span>
+              <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-0.5 rounded border border-slate-200">Subtotal: <span class="subtotal-cat">0</span> un.</span>
+            </div>
+            <div class="rows-container space-y-2"></div>
+          </div>
+          <button type="button" onclick="addProdRow('forno')" class="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition pt-1">
+            <i class="fa-solid fa-circle-plus"></i> Adicionar outro item
+          </button>
+        </div>
+
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-est" data-cat="prensa2">
+          <div>
+            <div class="flex justify-between items-center mb-2.5">
+              <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-compress text-slate-500"></i> Prensa II
+              </span>
+              <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-0.5 rounded border border-slate-200">Subtotal: <span class="subtotal-cat">0</span> un.</span>
+            </div>
+            <div class="rows-container space-y-2"></div>
+          </div>
+          <button type="button" onclick="addProdRow('prensa2')" class="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition pt-1">
+            <i class="fa-solid fa-circle-plus"></i> Adicionar outro item
+          </button>
+        </div>
+
+        <div class="hidden flex-col justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 prod-cat-est" data-cat="lavacao2">
+          <div>
+            <div class="flex justify-between items-center mb-2.5">
+              <span class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-hands-bubbles text-slate-500"></i> Lavação Produto Acabado
+              </span>
+              <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-0.5 rounded border border-slate-200">Subtotal: <span class="subtotal-cat">0</span> un.</span>
+            </div>
+            <div class="rows-container space-y-2"></div>
+          </div>
+          <button type="button" onclick="addProdRow('lavacao2')" class="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition pt-1">
+            <i class="fa-solid fa-circle-plus"></i> Adicionar outro item
+          </button>
+        </div>
+        <!-- === FIM BLOCOS ESTAMPARIA === -->
 
       </div>
     </section>
@@ -364,6 +509,9 @@
 
   </main>
 
+  <!-- Lista de modelos para autocomplete (Estamparia) -->
+  <datalist id="allModelsListEstamparia"></datalist>
+
   <!-- Modal de Opções de Exportação para Excel -->
   <div id="modalExcel" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col">
@@ -432,8 +580,10 @@
   </div>
 
   <script>
-    // Catálogo Oficial de Códigos
-    const MODEL_OPTIONS = {
+    // ESTADO E CATÁLOGOS UNIFICADOS
+    let currentMode = 'nacionais'; // default mode ('nacionais' ou 'estamparia')
+
+    const MODEL_OPTIONS_NAC = {
       cubas: [
         'CAC0019-N', 'CAC0022-N', 'CAC0023-N', 'CAC0024-N', 'CAC0025-N', 'CAC0026-N', 'CAC0027-N', 'CAC0030-N',
         'GAC0001-1', 'GAC0001-2', 'PAC0001-1', 'PAC0001-2', 'SAC0001', 'UAC0001-N', 'UAC0001-NT', 'UAC0002-N',
@@ -453,31 +603,54 @@
       outros: []
     };
 
-    const toggles = {
-      setup: false,
-      maint: false,
-      qual: false,
-      hr: false,
-      occur: false,
-      pend: false
-    };
+    const MODEL_OPTIONS_EST = [
+      'CAC0001-N', 'CAC0017-N', 'CAC0033-N', 'CAC0034-N', 'CAC0035-N',
+      'CAC0036-N', 'CAC0037-N', 'CAC0038-N', 'CAC0045-N', 'CAL0001-N',
+      'CAL0002-N', 'CAL0005-N', 'CAL0007-N', 'CBC0007-N', 'CBC0009-N',
+      'CBC0010-N', 'CBC0014-N', 'CBC0021-N', 'CBC0031-N', 'CBC0035-N',
+      'LAC0001-N'
+    ];
+
+    const toggles = { setup: false, maint: false, qual: false, hr: false, occur: false, pend: false };
 
     document.addEventListener('DOMContentLoaded', () => {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('inputData').value = today;
       document.getElementById('headerDate').innerText = formatDateBR(today);
-
       document.getElementById('inputData').addEventListener('change', (e) => {
         document.getElementById('headerDate').innerText = formatDateBR(e.target.value);
       });
 
-      // Inicializa 1 linha em cada família
-      ['cubas', 'pisos', 'banheiras', 'tabuas', 'desumidificadores', 'outros'].forEach(cat => {
-        addProdRow(cat);
-      });
+      // Preenche o datalist de modelos (Estamparia)
+      const datalistEst = document.getElementById('allModelsListEstamparia');
+      if (datalistEst) {
+        MODEL_OPTIONS_EST.forEach(model => {
+          const opt = document.createElement('option');
+          opt.value = model;
+          datalistEst.appendChild(opt);
+        });
+      }
+
+      // Inicializa as linhas de Nacionais
+      Object.keys(MODEL_OPTIONS_NAC).forEach(cat => addProdRow(cat));
+      // Inicializa as linhas de Estamparia
+      ['prensa1', 'lavacao1', 'forno', 'prensa2', 'lavacao2'].forEach(cat => addProdRow(cat));
 
       // Inicia seletores em 'Não'
       Object.keys(toggles).forEach(key => setToggle(key, false));
+      
+      // Aplica modo padrão
+      setAppMode('nacionais');
+    });
+
+    // Força preenchimento em CAIXA ALTA em todos os inputs de texto e textareas
+    document.addEventListener('input', function(e) {
+      if ((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
+        const start = e.target.selectionStart;
+        const end = e.target.selectionEnd;
+        e.target.value = e.target.value.toUpperCase();
+        e.target.setSelectionRange(start, end);
+      }
     });
 
     function formatDateBR(dateStr) {
@@ -486,32 +659,110 @@
       return `${d}/${m}/${y}`;
     }
 
-    function addProdRow(cat) {
-      const container = document.querySelector(`[data-cat="${cat}"] .rows-container`);
-      const rowId = 'prow_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    // ALTERNAR ENTRE OS MODOS (NACIONAIS / ESTAMPARIA)
+    function setAppMode(mode) {
+      currentMode = mode;
+      
+      // Atualiza Título
+      document.getElementById('mainTitle').innerText = mode === 'nacionais' 
+        ? 'Reporte Diário de Produção (Nacionais)' 
+        : 'Reporte Diário de Produção (Estamparia)';
 
+      // Atualiza Botões do Toggle
+      document.getElementById('btn-mode-nac').className = mode === 'nacionais' 
+        ? "px-6 py-2 text-xs font-bold rounded-md bg-blue-600 text-white shadow transition" 
+        : "px-6 py-2 text-xs font-bold rounded-md bg-transparent text-slate-700 hover:bg-slate-200 transition";
+        
+      document.getElementById('btn-mode-est').className = mode === 'estamparia' 
+        ? "px-6 py-2 text-xs font-bold rounded-md bg-blue-600 text-white shadow transition" 
+        : "px-6 py-2 text-xs font-bold rounded-md bg-transparent text-slate-700 hover:bg-slate-200 transition";
+
+      // Exibe/Oculta Seções de Produção Baseado no Modo
+      if(mode === 'nacionais') {
+        document.getElementById('ui-estamparia-toggles').classList.add('hidden');
+        document.getElementById('ui-nacionais-toggles').classList.remove('hidden');
+        document.querySelectorAll('.prod-cat-est').forEach(el => { el.classList.add('hidden'); el.classList.remove('flex'); });
+        
+        document.querySelectorAll('.prod-cat-nac').forEach(el => {
+          const cat = el.getAttribute('data-cat');
+          if (isProcessActive(cat)) { el.classList.remove('hidden'); el.classList.add('flex'); }
+          else { el.classList.add('hidden'); el.classList.remove('flex'); }
+        });
+      } else {
+        document.getElementById('ui-nacionais-toggles').classList.add('hidden');
+        document.getElementById('ui-estamparia-toggles').classList.remove('hidden');
+        document.querySelectorAll('.prod-cat-nac').forEach(el => { el.classList.add('hidden'); el.classList.remove('flex'); });
+        
+        document.querySelectorAll('.prod-cat-est').forEach(el => {
+          const cat = el.getAttribute('data-cat');
+          if (isProcessActive(cat)) { el.classList.remove('hidden'); el.classList.add('flex'); }
+          else { el.classList.add('hidden'); el.classList.remove('flex'); }
+        });
+      }
+
+      // Reinicia as listas dinâmicas ao trocar de modo para evitar mistura de dados (ex: dropdowns diferentes)
+      document.getElementById('list-setup').innerHTML = '';
+      document.getElementById('list-maint').innerHTML = '';
+      document.getElementById('list-qual').innerHTML = '';
+      if(toggles.setup) addSetupItem();
+      if(toggles.maint) addMaintItem();
+      if(toggles.qual) addQualItem();
+
+      calcTotal();
+    }
+
+    function isProcessActive(cat) {
+      const cb = document.getElementById('chk_' + cat);
+      return cb && cb.checked;
+    }
+
+    function toggleProcess(cat) {
+      const cb = document.getElementById('chk_' + cat);
+      const container = document.querySelector(`[data-cat="${cat}"]`);
+      if (!cb || !container) return;
+      if (cb.checked) {
+        container.classList.remove('hidden');
+        container.classList.add('flex');
+      } else {
+        container.classList.add('hidden');
+        container.classList.remove('flex');
+        const rows = container.querySelectorAll('.prod-row');
+        rows.forEach(r => r.remove());
+        addProdRow(cat);
+      }
+      calcTotal();
+    }
+
+    function addProdRow(cat) {
+      const isEstamparia = ['prensa1', 'lavacao1', 'forno', 'prensa2', 'lavacao2'].includes(cat);
+      const container = document.querySelector(`[data-cat="${cat}"] .rows-container`);
+      if(!container) return;
+
+      const rowId = 'prow_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
       const div = document.createElement('div');
       div.className = "flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 prod-row shadow-sm";
       div.id = rowId;
 
-      const opts = MODEL_OPTIONS[cat];
       let modelInputHtml = '';
 
-      if (opts && opts.length > 0) {
-        let optionsCode = `<option value="">Selecione o Modelo...</option>`;
-        opts.forEach(opt => {
-          optionsCode += `<option value="${opt}">${opt}</option>`;
-        });
-        modelInputHtml = `<select class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">${optionsCode}</select>`;
+      if (isEstamparia) {
+        modelInputHtml = `<input type="text" list="allModelsListEstamparia" placeholder="Código/Nome do Item" class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">`;
       } else {
-        modelInputHtml = `<input type="text" placeholder="Nome/Código do Modelo" class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">`;
+        const opts = MODEL_OPTIONS_NAC[cat];
+        if (opts && opts.length > 0) {
+          let optionsCode = `<option value="">Selecione o Modelo...</option>`;
+          opts.forEach(opt => { optionsCode += `<option value="${opt}">${opt}</option>`; });
+          modelInputHtml = `<select class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">${optionsCode}</select>`;
+        } else {
+          modelInputHtml = `<input type="text" placeholder="Nome/Código do Modelo" class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">`;
+        }
       }
 
       div.innerHTML = `
         ${modelInputHtml}
         <div class="flex items-center gap-2">
           <input type="number" min="0" value="0" onchange="calcTotal()" oninput="calcTotal()" class="input-qtd w-24 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs text-center font-bold focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Qtd">
-          <button type="button" onclick="removeProdRow('${cat}', '${rowId}')" class="btn-remove-row text-slate-400 hover:text-red-500 px-1.5 py-1 text-xs hidden transition" title="Remover modelo"><i class="fa-solid fa-trash-can"></i></button>
+          <button type="button" onclick="removeProdRow('${cat}', '${rowId}')" class="btn-remove-row text-slate-400 hover:text-red-500 px-1.5 py-1 text-xs hidden transition" title="Remover item"><i class="fa-solid fa-trash-can"></i></button>
         </div>
       `;
 
@@ -540,16 +791,30 @@
 
     function calcTotal() {
       let grandTotal = 0;
-      ['cubas', 'pisos', 'banheiras', 'tabuas', 'desumidificadores', 'outros'].forEach(cat => {
-        let catTotal = 0;
-        const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
-        rows.forEach(r => {
-          const q = parseInt(r.querySelector('.input-qtd').value) || 0;
-          catTotal += q;
+      
+      if(currentMode === 'nacionais') {
+        Object.keys(MODEL_OPTIONS_NAC).forEach(cat => {
+          let catTotal = 0;
+          if (isProcessActive(cat)) {
+            const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
+            rows.forEach(r => { catTotal += (parseInt(r.querySelector('.input-qtd').value) || 0); });
+          }
+          const subEl = document.querySelector(`[data-cat="${cat}"] .subtotal-cat`);
+          if(subEl) subEl.innerText = catTotal;
+          grandTotal += catTotal;
         });
-        document.querySelector(`[data-cat="${cat}"] .subtotal-cat`).innerText = catTotal;
-        grandTotal += catTotal;
-      });
+      } else {
+        ['prensa1', 'lavacao1', 'forno', 'prensa2', 'lavacao2'].forEach(cat => {
+          let catTotal = 0;
+          if (isProcessActive(cat)) {
+            const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
+            rows.forEach(r => { catTotal += (parseInt(r.querySelector('.input-qtd').value) || 0); });
+          }
+          document.querySelector(`[data-cat="${cat}"] .subtotal-cat`).innerText = catTotal;
+          grandTotal += catTotal;
+        });
+      }
+
       document.getElementById('totalPecasCount').innerText = grandTotal;
       return grandTotal;
     }
@@ -571,7 +836,6 @@
         if(key === 'maint' && document.querySelectorAll('.item-maint').length === 0) addMaintItem();
         if(key === 'qual' && document.querySelectorAll('.item-qual').length === 0) addQualItem();
         if(key === 'hr' && document.querySelectorAll('.item-hr').length === 0) addHrItem();
-
       } else {
         btnNo.className = "px-4 py-1.5 text-xs font-bold rounded-l-lg border border-red-600 bg-red-600 text-white shadow-sm transition";
         btnYes.className = "px-4 py-1.5 text-xs font-bold rounded-r-lg border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
@@ -585,12 +849,28 @@
       const div = document.createElement('div');
       div.className = "item-setup bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 relative shadow-sm";
       div.id = id;
+      
+      let maqHtml = '';
+      if(currentMode === 'estamparia') {
+        maqHtml = `
+          <select class="setup-maq w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">
+            <option value="">Selecione...</option>
+            <option value="Prensa I">Prensa I</option>
+            <option value="Lavação I">Lavação I</option>
+            <option value="Forno">Forno</option>
+            <option value="Prensa II">Prensa II</option>
+            <option value="Lavação Produto Acabado">Lavação Produto Acabado</option>
+          </select>`;
+      } else {
+        maqHtml = `<input type="text" placeholder="Ex: Injetora 02" class="setup-maq w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">`;
+      }
+
       div.innerHTML = `
         <button type="button" onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-slate-400 hover:text-red-500 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-6">
           <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase">Máquina / Linha</label>
-            <input type="text" placeholder="Ex: Injetora 02" class="setup-maq w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">${currentMode === 'estamparia' ? 'Processo / Máquina' : 'Máquina / Linha'}</label>
+            ${maqHtml}
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Tempo de Setup (min)</label>
@@ -598,8 +878,8 @@
           </div>
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase">Observações da Troca</label>
-          <input type="text" placeholder="Troca do molde X para Y" class="setup-obs w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase">${currentMode === 'estamparia' ? 'Descrição do Setup executado' : 'Observações da Troca'}</label>
+          <input type="text" placeholder="Ex: Troca do molde X para Y" class="setup-obs w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
         </div>
       `;
       list.appendChild(div);
@@ -611,15 +891,44 @@
       const div = document.createElement('div');
       div.className = "item-maint bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 relative shadow-sm";
       div.id = id;
+
+      let linhaHtml = '';
+      if(currentMode === 'estamparia') {
+        linhaHtml = `
+          <select class="maint-linha w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">
+            <option value="">Selecione...</option>
+            <option value="Prensa I">Prensa I</option>
+            <option value="Lavação I">Lavação I</option>
+            <option value="Forno">Forno</option>
+            <option value="Prensa II">Prensa II</option>
+            <option value="Lavação Produto Acabado">Lavação Produto Acabado</option>
+          </select>`;
+      } else {
+        linhaHtml = `
+          <select class="maint-linha w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">
+            <option value="">Selecione...</option>
+            <option value="Cubas / Calhas">Cubas / Calhas</option>
+            <option value="Pisos">Pisos</option>
+            <option value="Banheiras">Banheiras</option>
+            <option value="Tábuas">Tábuas</option>
+            <option value="Desumidificadores">Desumidificadores</option>
+            <option value="Outros">Outros</option>
+          </select>`;
+      }
+
       div.innerHTML = `
         <button type="button" onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-slate-400 hover:text-red-500 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pr-6">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 pr-6">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">Linha / Processo</label>
+            ${linhaHtml}
+          </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Equipamento</label>
             <input type="text" placeholder="Ex: Prensa 01" class="maint-maq w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase">Tempo Parado (min)</label>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">Tempo (min)</label>
             <input type="text" placeholder="Ex: 80 min" class="maint-tempo w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium">
           </div>
           <div>
@@ -644,26 +953,43 @@
       const div = document.createElement('div');
       div.className = "item-qual bg-slate-50 p-3 rounded-xl border border-slate-200 relative shadow-sm";
       div.id = id;
+
+      let prodOptionsHtml = '';
+      if(currentMode === 'estamparia') {
+        prodOptionsHtml = `
+          <option value="">Selecione o processo...</option>
+          <option value="Prensa I">Prensa I</option>
+          <option value="Lavação I">Lavação I</option>
+          <option value="Forno">Forno</option>
+          <option value="Prensa II">Prensa II</option>
+          <option value="Lavação Produto Acabado">Lavação Produto Acabado</option>
+        `;
+      } else {
+        prodOptionsHtml = `
+          <option value="">Selecione o produto...</option>
+          <option value="Cubas / Calhas">Cubas / Calhas</option>
+          <option value="Pisos">Pisos</option>
+          <option value="Banheiras">Banheiras</option>
+          <option value="Tábuas">Tábuas</option>
+          <option value="Desumidificadores">Desumidificadores</option>
+          <option value="Outros">Outros</option>
+        `;
+      }
+
       div.innerHTML = `
         <button type="button" onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-slate-400 hover:text-red-500 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 pr-6">
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Produto</label>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">${currentMode === 'estamparia' ? 'Processo' : 'Produto'}</label>
             <select class="qual-prod w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" onchange="updateQualCodes('${id}')">
-              <option value="">Selecione o produto...</option>
-              <option value="Cubas / Calhas">Cubas / Calhas</option>
-              <option value="Pisos">Pisos</option>
-              <option value="Banheiras">Banheiras</option>
-              <option value="Tábuas">Tábuas</option>
-              <option value="Desumidificadores">Desumidificadores</option>
-              <option value="Outros">Outros</option>
+              ${prodOptionsHtml}
             </select>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Código da Peça</label>
             <div id="qual-code-container-${id}">
               <select class="qual-codigo w-full bg-slate-100 text-slate-400 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-medium cursor-not-allowed" disabled>
-                <option value="">Selecione o produto primeiro...</option>
+                <option value="">Selecione ao lado primeiro...</option>
               </select>
             </div>
           </div>
@@ -686,38 +1012,30 @@
       const prodVal = row.querySelector('.qual-prod').value;
       const container = document.getElementById(`qual-code-container-${id}`);
 
-      const catMap = {
-        'Cubas / Calhas': 'cubas',
-        'Pisos': 'pisos',
-        'Banheiras': 'banheiras',
-        'Tábuas': 'tabuas',
-        'Desumidificadores': 'desumidificadores',
-        'Outros': 'outros'
-      };
-
-      const catKey = catMap[prodVal];
-      const codes = catKey ? MODEL_OPTIONS[catKey] : null;
-
       if (!prodVal) {
-        container.innerHTML = `
-          <select class="qual-codigo w-full bg-slate-100 text-slate-400 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-medium cursor-not-allowed" disabled>
-            <option value="">Selecione o produto primeiro...</option>
-          </select>
-        `;
-      } else if (codes && codes.length > 0) {
+        container.innerHTML = `<select class="qual-codigo w-full bg-slate-100 text-slate-400 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-medium cursor-not-allowed" disabled><option value="">Selecione ao lado primeiro...</option></select>`;
+        return;
+      }
+
+      if (currentMode === 'estamparia') {
         let optsHtml = '<option value="">Selecione o Código...</option>';
-        codes.forEach(c => {
-          optsHtml += `<option value="${c}">${c}</option>`;
-        });
-        container.innerHTML = `
-          <select class="qual-codigo w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800">
-            ${optsHtml}
-          </select>
-        `;
+        MODEL_OPTIONS_EST.forEach(c => { optsHtml += `<option value="${c}">${c}</option>`; });
+        container.innerHTML = `<select class="qual-codigo w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800">${optsHtml}</select>`;
       } else {
-        container.innerHTML = `
-          <input type="text" placeholder="Digite o modelo/código do item" class="qual-codigo w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800">
-        `;
+        const catMap = {
+          'Cubas / Calhas': 'cubas', 'Pisos': 'pisos', 'Banheiras': 'banheiras', 
+          'Tábuas': 'tabuas', 'Desumidificadores': 'desumidificadores', 'Outros': 'outros'
+        };
+        const catKey = catMap[prodVal];
+        const codes = catKey ? MODEL_OPTIONS_NAC[catKey] : null;
+
+        if (codes && codes.length > 0) {
+          let optsHtml = '<option value="">Selecione o Código...</option>';
+          codes.forEach(c => { optsHtml += `<option value="${c}">${c}</option>`; });
+          container.innerHTML = `<select class="qual-codigo w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800">${optsHtml}</select>`;
+        } else {
+          container.innerHTML = `<input type="text" placeholder="Digite o modelo/código do item" class="qual-codigo w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800">`;
+        }
       }
     }
 
@@ -753,7 +1071,9 @@
       const lider = document.getElementById('inputLider').value || 'Não informado';
       const sep = "----------------------------------------";
 
-      let txt = `*REPORTE DIÁRIO DE PRODUÇÃO*\n`;
+      let tituloReporte = currentMode === 'estamparia' ? '*REPORTE DIÁRIO DE PRODUÇÃO ESTAMPARIA*' : '*REPORTE DIÁRIO DE PRODUÇÃO NACIONAIS*';
+
+      let txt = `${tituloReporte}\n`;
       txt += `${sep}\n`;
       txt += `*Data:* ${dataStr}\n`;
       txt += `*Turno:* ${turno}\n`;
@@ -762,52 +1082,65 @@
 
       txt += `*1. APONTAMENTO DE PRODUÇÃO*\n`;
       let grandTotal = 0;
-
-      const catLabels = {
-        cubas: 'Cubas / Calhas',
-        pisos: 'Pisos',
-        banheiras: 'Banheiras',
-        tabuas: 'Tábuas',
-        desumidificadores: 'Desumidificadores',
-        outros: 'Outros'
-      };
-
       let hasAnyProd = false;
 
-      Object.keys(catLabels).forEach(cat => {
-        const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
-        let validRows = [];
-
-        rows.forEach(r => {
-          const model = r.querySelector('.input-modelo').value.trim();
-          const qtd = parseInt(r.querySelector('.input-qtd').value) || 0;
-          if (qtd > 0 || model !== '') {
-            validRows.push({ model, qtd });
+      if(currentMode === 'nacionais') {
+        const catLabels = { cubas: 'Cubas / Calhas', pisos: 'Pisos', banheiras: 'Banheiras', tabuas: 'Tábuas', desumidificadores: 'Desumidificadores', outros: 'Outros' };
+        Object.keys(catLabels).forEach(cat => {
+          if (!isProcessActive(cat)) return;
+          const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
+          let validRows = [];
+          rows.forEach(r => {
+            const model = r.querySelector('.input-modelo').value.trim();
+            const qtd = parseInt(r.querySelector('.input-qtd').value) || 0;
+            if (qtd > 0 || model !== '') validRows.push({ model, qtd });
+          });
+          if (validRows.length > 0) {
+            hasAnyProd = true;
+            const subTotalCat = validRows.reduce((a, b) => a + b.qtd, 0);
+            grandTotal += subTotalCat;
+            if (validRows.length === 1) {
+              const mText = validRows[0].model ? ` (Modelo: ${validRows[0].model})` : '';
+              txt += `• ${catLabels[cat]}: ${validRows[0].qtd} un.${mText}\n`;
+            } else {
+              txt += `• ${catLabels[cat]} [Subtotal: ${subTotalCat} un.]\n`;
+              validRows.forEach(item => {
+                const mText = item.model ? item.model : 'Padrão';
+                txt += `  - ${mText}: ${item.qtd} un.\n`;
+              });
+            }
           }
         });
-
-        if (validRows.length > 0) {
-          hasAnyProd = true;
-          const subTotalCat = validRows.reduce((a, b) => a + b.qtd, 0);
-          grandTotal += subTotalCat;
-
-          if (validRows.length === 1) {
-            const mText = validRows[0].model ? ` (Modelo: ${validRows[0].model})` : '';
-            txt += `• ${catLabels[cat]}: ${validRows[0].qtd} un.${mText}\n`;
-          } else {
-            txt += `• ${catLabels[cat]} [Subtotal: ${subTotalCat} un.]\n`;
-            validRows.forEach(item => {
-              const mText = item.model ? item.model : 'Padrão';
-              txt += `  - ${mText}: ${item.qtd} un.\n`;
-            });
+      } else {
+        const catLabels = { prensa1: 'Prensa I', lavacao1: 'Lavação I', forno: 'Forno', prensa2: 'Prensa II', lavacao2: 'Lavação Produto Acabado' };
+        Object.keys(catLabels).forEach(cat => {
+          if (!isProcessActive(cat)) return;
+          const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
+          let validRows = [];
+          rows.forEach(r => {
+            const model = r.querySelector('.input-modelo').value.trim();
+            const qtd = parseInt(r.querySelector('.input-qtd').value) || 0;
+            if (qtd > 0 || model !== '') validRows.push({ model, qtd });
+          });
+          if (validRows.length > 0) {
+            hasAnyProd = true;
+            const subTotalCat = validRows.reduce((a, b) => a + b.qtd, 0);
+            grandTotal += subTotalCat;
+            if (validRows.length === 1) {
+              const mText = validRows[0].model ? ` (Item: ${validRows[0].model})` : '';
+              txt += `• ${catLabels[cat]}: ${validRows[0].qtd} un.${mText}\n`;
+            } else {
+              txt += `• ${catLabels[cat]} [Subtotal: ${subTotalCat} un.]\n`;
+              validRows.forEach(item => {
+                const mText = item.model ? item.model : 'Padrão';
+                txt += `  - ${mText}: ${item.qtd} un.\n`;
+              });
+            }
           }
-        }
-      });
-
-      if (!hasAnyProd) {
-        txt += `Nenhuma produção apontada no turno.\n`;
+        });
       }
 
+      if (!hasAnyProd) txt += `Nenhuma produção apontada no turno.\n`;
       txt += `\n*TOTAL PRODUZIDO NO TURNO:* ${grandTotal} un.\n`;
       txt += `${sep}\n\n`;
 
@@ -839,13 +1172,15 @@
         const items = document.querySelectorAll('.item-maint');
         let count = 0;
         items.forEach(item => {
+          const linha = item.querySelector('.maint-linha') ? item.querySelector('.maint-linha').value.trim() : '';
           const maq = item.querySelector('.maint-maq').value.trim();
           const tempo = item.querySelector('.maint-tempo').value.trim();
           const status = item.querySelector('.maint-status').value;
           const motivo = item.querySelector('.maint-motivo').value.trim();
-          if (maq || tempo || motivo) {
+          if (linha || maq || tempo || motivo) {
             count++;
-            txt += `• Equipamento: ${maq || 'Não especificado'}\n`;
+            txt += `• Linha/Processo: ${linha || 'Não especificado'}\n`;
+            if (maq) txt += `  - Equipamento: ${maq}\n`;
             if (tempo) txt += `  - Tempo Parado: ${tempo}\n`;
             txt += `  - Status: ${status}\n`;
             if (motivo) txt += `  - Motivo: ${motivo}\n`;
@@ -870,7 +1205,7 @@
           const qtd = item.querySelector('.qual-qtd').value || 0;
           if (prod || cod || def || qtd > 0) {
             count++;
-            const itemLabel = prod ? prod : 'Produto não informado';
+            const itemLabel = prod ? prod : (currentMode === 'estamparia' ? 'Processo não informado' : 'Produto não informado');
             const codLabel = cod ? ` (${cod})` : '';
             txt += `• ${itemLabel}${codLabel}\n`;
             txt += `  - Quantidade: ${qtd} un.\n`;
@@ -893,14 +1228,10 @@
         items.forEach(item => {
           const tipo = item.querySelector('.hr-tipo').value;
           const nome = item.querySelector('.hr-nome').value.trim();
-
           if (tipo === 'Falta') faltas++;
           if (tipo === 'Atestado') atestados++;
           if (tipo === 'Atraso') atrasos++;
-
-          if (nome) {
-            detalhes.push(`  - ${tipo}: ${nome}`);
-          }
+          if (nome) detalhes.push(`  - ${tipo}: ${nome}`);
         });
 
         txt += `• Resumo: ${faltas} falta(s) | ${atestados} atestado(s) | ${atrasos} atraso(s)\n`;
@@ -909,9 +1240,7 @@
           detalhes.forEach(d => txt += `${d}\n`);
         }
         const hrObs = document.getElementById('textHrObs') ? document.getElementById('textHrObs').value.trim() : '';
-        if (hrObs) {
-          txt += `• Observação da Equipe: ${hrObs}\n`;
-        }
+        if (hrObs) txt += `• Observação da Equipe: ${hrObs}\n`;
       } else {
         txt += `Equipe completa (100% de presença).\n`;
       }
@@ -920,21 +1249,15 @@
       // 6. Ocorrências
       txt += `*6. OCORRÊNCIAS E OBSERVAÇÕES*\n`;
       const txtOcc = document.getElementById('textOccur').value.trim();
-      if (toggles.occur && txtOcc) {
-        txt += `${txtOcc}\n`;
-      } else {
-        txt += `Sem ocorrências relevantes no turno.\n`;
-      }
+      if (toggles.occur && txtOcc) txt += `${txtOcc}\n`;
+      else txt += `Sem ocorrências relevantes no turno.\n`;
       txt += `${sep}\n\n`;
 
       // 7. Pendências
       txt += `*7. PENDÊNCIAS PARA O PRÓXIMO TURNO*\n`;
       const txtPend = document.getElementById('textPend').value.trim();
-      if (toggles.pend && txtPend) {
-        txt += `${txtPend}\n`;
-      } else {
-        txt += `Nenhuma pendência registrada.\n`;
-      }
+      if (toggles.pend && txtPend) txt += `${txtPend}\n`;
+      else txt += `Nenhuma pendência registrada.\n`;
 
       return txt;
     }
@@ -953,106 +1276,56 @@
 
     function openExcelModal() {
       const modal = document.getElementById('modalExcel');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-      }
+      if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
     }
 
     function closeExcelModal() {
       const modal = document.getElementById('modalExcel');
-      if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
+      if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
     }
 
     function exportCurrentToExcel() {
       try {
-        if (typeof XLSX === 'undefined') {
-          showToast("Biblioteca de Excel não carregada. Verifique sua conexão.", false);
-          return;
-        }
+        if (typeof XLSX === 'undefined') { showToast("Biblioteca de Excel não carregada.", false); return; }
 
         const dataTurno = document.getElementById('inputData').value;
         const turno = document.getElementById('inputTurno').value;
         const lider = document.getElementById('inputLider').value || 'Não informado';
 
-        // 1. Resumo do Turno
-        const rowsResumo = [
-          ['Data do Turno', 'Turno', 'Líder Responsável', 'Total Produzido (un)', 'Total Refugos (un)', 'Teve Setup?', 'Teve Manutenção?', 'Faltas', 'Atestados', 'Atrasos', 'Observações Equipe', 'Ocorrências', 'Pendências']
-        ];
-
+        // 1. Resumo
+        const rowsResumo = [['Data do Turno', 'Tipo Apontamento', 'Turno', 'Líder Responsável', 'Total Produzido (un)', 'Total Refugos (un)', 'Teve Setup?', 'Teve Manutenção?', 'Faltas', 'Atestados', 'Atrasos', 'Observações Equipe', 'Ocorrências', 'Pendências']];
         let totalPecas = calcTotal();
         let totalRefugos = 0;
-        document.querySelectorAll('.item-qual').forEach(item => {
-          totalRefugos += parseInt(item.querySelector('.qual-qtd').value) || 0;
-        });
-
+        document.querySelectorAll('.item-qual').forEach(item => { totalRefugos += parseInt(item.querySelector('.qual-qtd').value) || 0; });
         let faltas = 0, atestados = 0, atrasos = 0;
         if (toggles.hr) {
           document.querySelectorAll('.item-hr').forEach(item => {
             const t = item.querySelector('.hr-tipo').value;
-            if (t === 'Falta') faltas++;
-            if (t === 'Atestado') atestados++;
-            if (t === 'Atraso') atrasos++;
+            if (t === 'Falta') faltas++; if (t === 'Atestado') atestados++; if (t === 'Atraso') atrasos++;
           });
         }
         const obsRh = document.getElementById('textHrObs') ? document.getElementById('textHrObs').value.trim() : '';
         const ocorrencias = toggles.occur ? document.getElementById('textOccur').value.trim() : '';
         const pendencias = toggles.pend ? document.getElementById('textPend').value.trim() : '';
 
-        rowsResumo.push([
-          formatDateBR(dataTurno),
-          turno,
-          lider,
-          totalPecas,
-          totalRefugos,
-          toggles.setup ? 'Sim' : 'Não',
-          toggles.maint ? 'Sim' : 'Não',
-          faltas,
-          atestados,
-          atrasos,
-          obsRh,
-          ocorrencias,
-          pendencias
-        ]);
+        rowsResumo.push([formatDateBR(dataTurno), currentMode === 'estamparia' ? 'Estamparia' : 'Nacionais', turno, lider, totalPecas, totalRefugos, toggles.setup ? 'Sim' : 'Não', toggles.maint ? 'Sim' : 'Não', faltas, atestados, atrasos, obsRh, ocorrencias, pendencias]);
 
-        // 2. Produção Detalhada
-        const rowsProd = [
-          ['Data do Turno', 'Turno', 'Líder', 'Família de Produto', 'Código / Modelo', 'Quantidade (un)']
-        ];
-        const catLabels = {
-          cubas: 'Cubas / Calhas',
-          pisos: 'Pisos',
-          banheiras: 'Banheiras',
-          tabuas: 'Tábuas',
-          desumidificadores: 'Desumidificadores',
-          outros: 'Outros'
-        };
-
-        Object.keys(catLabels).forEach(cat => {
-          const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
-          rows.forEach(r => {
-            const modelo = r.querySelector('.input-modelo').value.trim();
-            const qtd = parseInt(r.querySelector('.input-qtd').value) || 0;
-            if (qtd > 0 || modelo !== '') {
-              rowsProd.push([
-                formatDateBR(dataTurno),
-                turno,
-                lider,
-                catLabels[cat],
-                modelo || 'Padrão',
-                qtd
-              ]);
-            }
+        // 2. Produção
+        const rowsProd = [['Data do Turno', 'Turno', 'Líder', currentMode==='estamparia' ? 'Processo Executado' : 'Família de Produto', 'Código / Modelo', 'Quantidade (un)']];
+        if (currentMode === 'nacionais') {
+          const catLabels = { cubas: 'Cubas / Calhas', pisos: 'Pisos', banheiras: 'Banheiras', tabuas: 'Tábuas', desumidificadores: 'Desumidificadores', outros: 'Outros' };
+          Object.keys(catLabels).forEach(cat => {
+            if (!isProcessActive(cat)) return;
+            document.querySelectorAll(`[data-cat="${cat}"] .prod-row`).forEach(r => {
+              const modelo = r.querySelector('.input-modelo').value.trim();
+              const qtd = parseInt(r.querySelector('.input-qtd').value) || 0;
+              if (qtd > 0 || modelo !== '') rowsProd.push([formatDateBR(dataTurno), turno, lider, catLabels[cat], modelo || 'Padrão', qtd]);
+            });
           });
-        });
+        }
 
-        // 3. Refugo e Qualidade
-        const rowsRefugo = [
-          ['Data do Turno', 'Turno', 'Líder', 'Família / Produto', 'Código da Peça', 'Defeito / Motivo', 'Quantidade (un)']
-        ];
+        // 3. Refugo
+        const rowsRefugo = [['Data do Turno', 'Turno', 'Líder', currentMode === 'estamparia' ? 'Processo' : 'Família / Produto', 'Código da Peça', 'Defeito / Motivo', 'Quantidade (un)']];
         if (toggles.qual) {
           document.querySelectorAll('.item-qual').forEach(item => {
             const prod = item.querySelector('.qual-prod').value.trim();
@@ -1060,85 +1333,41 @@
             const cod = codEl ? codEl.value.trim() : '';
             const def = item.querySelector('.qual-def').value.trim();
             const qtd = parseInt(item.querySelector('.qual-qtd').value) || 0;
-            if (prod || cod || def || qtd > 0) {
-              rowsRefugo.push([
-                formatDateBR(dataTurno),
-                turno,
-                lider,
-                prod || 'Não especificado',
-                cod || '-',
-                def || 'Não informado',
-                qtd
-              ]);
-            }
+            if (prod || cod || def || qtd > 0) rowsRefugo.push([formatDateBR(dataTurno), turno, lider, prod || 'Não especificado', cod || '-', def || 'Não informado', qtd]);
           });
         }
 
-        // 4. Paradas e Setups
-        const rowsParadas = [
-          ['Data do Turno', 'Turno', 'Líder', 'Tipo', 'Equipamento / Máquina', 'Tempo (min)', 'Status', 'Motivo / Descrição']
-        ];
+        // 4. Paradas
+        const rowsParadas = [['Data do Turno', 'Turno', 'Líder', 'Tipo', 'Linha / Processo', 'Equipamento / Máquina', 'Tempo (min)', 'Status', 'Motivo / Descrição']];
         if (toggles.setup) {
           document.querySelectorAll('.item-setup').forEach(item => {
             const maq = item.querySelector('.setup-maq').value.trim();
             const tempo = item.querySelector('.setup-tempo').value.trim();
             const obs = item.querySelector('.setup-obs').value.trim();
-            if (maq || tempo || obs) {
-              rowsParadas.push([
-                formatDateBR(dataTurno),
-                turno,
-                lider,
-                'Setup',
-                maq || '-',
-                tempo || '-',
-                '-',
-                obs || '-'
-              ]);
-            }
+            if (maq || tempo || obs) rowsParadas.push([formatDateBR(dataTurno), turno, lider, 'Setup', '-', maq || '-', tempo || '-', '-', obs || '-']);
           });
         }
         if (toggles.maint) {
           document.querySelectorAll('.item-maint').forEach(item => {
+            const linha = item.querySelector('.maint-linha') ? item.querySelector('.maint-linha').value.trim() : '';
             const maq = item.querySelector('.maint-maq').value.trim();
             const tempo = item.querySelector('.maint-tempo').value.trim();
             const status = item.querySelector('.maint-status').value;
             const motivo = item.querySelector('.maint-motivo').value.trim();
-            if (maq || tempo || motivo) {
-              rowsParadas.push([
-                formatDateBR(dataTurno),
-                turno,
-                lider,
-                'Manutenção',
-                maq || '-',
-                tempo || '-',
-                status,
-                motivo || '-'
-              ]);
-            }
+            if (linha || maq || tempo || motivo) rowsParadas.push([formatDateBR(dataTurno), turno, lider, 'Manutenção', linha || '-', maq || '-', tempo || '-', status, motivo || '-']);
           });
         }
 
-        // 5. Gestão de Equipe
-        const rowsEquipe = [
-          ['Data do Turno', 'Turno', 'Líder', 'Tipo de Ausência', 'Colaborador']
-        ];
+        // 5. Equipe
+        const rowsEquipe = [['Data do Turno', 'Turno', 'Líder', 'Tipo de Ausência', 'Colaborador']];
         if (toggles.hr) {
           document.querySelectorAll('.item-hr').forEach(item => {
             const tipo = item.querySelector('.hr-tipo').value;
             const nome = item.querySelector('.hr-nome').value.trim();
-            if (nome) {
-              rowsEquipe.push([
-                formatDateBR(dataTurno),
-                turno,
-                lider,
-                tipo,
-                nome
-              ]);
-            }
+            if (nome) rowsEquipe.push([formatDateBR(dataTurno), turno, lider, tipo, nome]);
           });
         }
 
-        // Criando a Pasta de Trabalho (Workbook)
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsResumo), 'Resumo_Turno');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsProd), 'Producao_Detalhada');
@@ -1147,9 +1376,7 @@
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsEquipe), 'Gestao_Equipe');
 
         const cleanDate = (dataTurno || 'hoje').replace(/-/g, '');
-        const cleanTurno = (turno || 'turno').replace(/[^a-zA-Z0-9]/g, '_');
-        const filename = `Reporte_Producao_TBX_${cleanDate}_${cleanTurno}.xlsx`;
-
+        const filename = `Reporte_Producao_${currentMode}_TBX_${cleanDate}.xlsx`;
         XLSX.writeFile(wb, filename);
         showToast("Planilha Excel gerada com sucesso!", true);
         closeExcelModal();
@@ -1162,41 +1389,24 @@
 
     function copyWhatsAppReport() {
       const txt = generateReportText();
-      
       if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(txt).then(() => {
-          showToast("Relatório copiado! Compartilhando no WhatsApp...");
-          openWhatsApp(txt);
-        }).catch(() => {
-          fallbackCopy(txt);
-          openWhatsApp(txt);
-        });
+        navigator.clipboard.writeText(txt).then(() => { showToast("Relatório copiado! Compartilhando no WhatsApp..."); openWhatsApp(txt); })
+        .catch(() => { fallbackCopy(txt); openWhatsApp(txt); });
       } else {
-        fallbackCopy(txt);
-        openWhatsApp(txt);
+        fallbackCopy(txt); openWhatsApp(txt);
       }
     }
 
     function openWhatsApp(text) {
-      const encodedText = encodeURIComponent(text);
-      const waUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
-      window.open(waUrl, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     function fallbackCopy(text) {
       const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand("copy");
-        showToast("Relatório copiado! Compartilhando no WhatsApp...");
-      } catch (err) {
-        showToast("Selecione e copie através do botão Visualizar.", false);
-      }
+      textarea.value = text; textarea.style.position = "fixed"; textarea.style.opacity = "0";
+      document.body.appendChild(textarea); textarea.focus(); textarea.select();
+      try { document.execCommand("copy"); showToast("Relatório copiado! Compartilhando no WhatsApp..."); } 
+      catch (err) { showToast("Selecione e copie através do botão Visualizar.", false); }
       document.body.removeChild(textarea);
     }
 
@@ -1204,19 +1414,9 @@
       const toast = document.getElementById('toast');
       const icon = document.getElementById('toastIcon');
       document.getElementById('toastMsg').innerText = msg;
-      
-      if(isSuccess) {
-        icon.className = "fa-solid fa-circle-check text-green-400 text-base";
-      } else {
-        icon.className = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
-      }
-
-      toast.classList.remove('hidden');
-      toast.classList.add('flex');
-      setTimeout(() => {
-        toast.classList.add('hidden');
-        toast.classList.remove('flex');
-      }, 3500);
+      icon.className = isSuccess ? "fa-solid fa-circle-check text-green-400 text-base" : "fa-solid fa-triangle-exclamation text-amber-400 text-base";
+      toast.classList.remove('hidden'); toast.classList.add('flex');
+      setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 3500);
     }
   </script>
 
@@ -1226,7 +1426,6 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Credenciais oficiais do projeto
     const firebaseConfig = typeof __firebase_config !== 'undefined'
       ? JSON.parse(__firebase_config)
       : {
@@ -1271,9 +1470,7 @@
       } catch (err) {
         console.error("Erro na inicialização do Firebase:", err);
         const statusDot = document.getElementById('dbStatusDot');
-        const statusText = document.getElementById('dbStatusText');
         if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-400";
-        if (statusText) statusText.innerText = "Erro Conexão";
       }
     }
 
@@ -1282,55 +1479,45 @@
       const turno = document.getElementById('inputTurno').value;
       const lider = document.getElementById('inputLider').value || 'Não informado';
 
-      // 1. Produção
-      const categorias = ['cubas', 'pisos', 'banheiras', 'tabuas', 'desumidificadores', 'outros'];
       const itensProduzidos = [];
       let totalPecas = 0;
 
-      categorias.forEach(cat => {
-        const rows = document.querySelectorAll(`[data-cat="${cat}"] .prod-row`);
-        rows.forEach(r => {
-          const modelo = r.querySelector('.input-modelo').value.trim();
-          const quantidade = parseInt(r.querySelector('.input-qtd').value) || 0;
-          if (quantidade > 0 || modelo !== '') {
-            itensProduzidos.push({
-              familia: cat,
-              modelo: modelo || 'Padrão',
-              quantidade: quantidade
-            });
-            totalPecas += quantidade;
-          }
+      if (currentMode === 'nacionais') {
+        ['cubas', 'pisos', 'banheiras', 'tabuas', 'desumidificadores', 'outros'].forEach(cat => {
+          if (!isProcessActive(cat)) return;
+          document.querySelectorAll(`[data-cat="${cat}"] .prod-row`).forEach(r => {
+            const modelo = r.querySelector('.input-modelo').value.trim();
+            const quantidade = parseInt(r.querySelector('.input-qtd').value) || 0;
+            if (quantidade > 0 || modelo !== '') {
+              itensProduzidos.push({ processo: cat, modelo: modelo || 'Padrão', quantidade: quantidade });
+              totalPecas += quantidade;
+            }
+          });
         });
-      });
+      }
 
-      // 2. Setup
       const setups = [];
       if (toggles.setup) {
         document.querySelectorAll('.item-setup').forEach(item => {
           const maquina = item.querySelector('.setup-maq').value.trim();
           const tempo = item.querySelector('.setup-tempo').value.trim();
           const observacao = item.querySelector('.setup-obs').value.trim();
-          if (maquina || tempo || observacao) {
-            setups.push({ maquina, tempo, observacao });
-          }
+          if (maquina || tempo || observacao) setups.push({ maquina, tempo, observacao });
         });
       }
 
-      // 3. Manutenções
       const manutencoes = [];
       if (toggles.maint) {
         document.querySelectorAll('.item-maint').forEach(item => {
+          const linha = item.querySelector('.maint-linha') ? item.querySelector('.maint-linha').value.trim() : '';
           const equipamento = item.querySelector('.maint-maq').value.trim();
           const tempo = item.querySelector('.maint-tempo').value.trim();
           const status = item.querySelector('.maint-status').value;
           const motivo = item.querySelector('.maint-motivo').value.trim();
-          if (equipamento || tempo || motivo) {
-            manutencoes.push({ equipamento, tempo, status, motivo });
-          }
+          if (linha || equipamento || tempo || motivo) manutencoes.push({ linha, equipamento, tempo, status, motivo });
         });
       }
 
-      // 4. Refugos
       const refugos = [];
       let totalRefugos = 0;
       if (toggles.qual) {
@@ -1347,7 +1534,6 @@
         });
       }
 
-      // 5. Pessoas
       const ausencias = [];
       let faltas = 0, atestados = 0, atrasos = 0;
       if (toggles.hr) {
@@ -1361,36 +1547,16 @@
         });
       }
       const obsRh = document.getElementById('textHrObs') ? document.getElementById('textHrObs').value.trim() : '';
-
-      // 6. Ocorrências & Pendências
-      const ocorrencias = toggles.occur ? (document.getElementById('textOccur').value.trim()) : '';
-      const pendencias = toggles.pend ? (document.getElementById('textPend').value.trim()) : '';
+      const ocorrencias = toggles.occur ? document.getElementById('textOccur').value.trim() : '';
+      const pendencias = toggles.pend ? document.getElementById('textPend').value.trim() : '';
 
       return {
-        dataTurno,
-        turno,
-        lider,
-        totalPecas,
-        totalRefugos,
-        teveSetup: toggles.setup,
-        teveManutencao: toggles.maint,
-        teveRefugo: toggles.qual,
-        teveAusencia: toggles.hr,
-        itensProduzidos,
-        setups,
-        manutencoes,
-        refugos,
-        equipe: {
-          faltas,
-          atestados,
-          atrasos,
-          ausencias,
-          observacoes: obsRh
-        },
-        ocorrencias,
-        pendencias,
-        relatorioTexto: generateReportText(),
-        criadoEm: new Date().toISOString()
+        tipoApontamento: currentMode === 'estamparia' ? 'Estamparia' : 'Nacionais',
+        dataTurno, turno, lider, totalPecas, totalRefugos,
+        teveSetup: toggles.setup, teveManutencao: toggles.maint, teveRefugo: toggles.qual, teveAusencia: toggles.hr,
+        itensProduzidos, setups, manutencoes, refugos,
+        equipe: { faltas, atestados, atrasos, ausencias, observacoes: obsRh },
+        ocorrencias, pendencias, relatorioTexto: generateReportText(), criadoEm: new Date().toISOString()
       };
     }
 
@@ -1399,224 +1565,74 @@
       const icon = document.getElementById('btnSalvarIcon');
       const text = document.getElementById('btnSalvarText');
 
-      if (!currentUser) {
-        showToast("Aguardando conexão com a nuvem...", false);
-        return;
-      }
-
-      const lider = document.getElementById('inputLider').value;
-      if (!lider) {
-        showToast("Por favor, selecione o Líder Responsável antes de salvar.", false);
-        document.getElementById('inputLider').focus();
-        return;
-      }
+      if (!currentUser) return showToast("Aguardando conexão com a nuvem...", false);
+      if (!document.getElementById('inputLider').value) return showToast("Por favor, selecione o Líder Responsável.", false);
 
       try {
-        btn.disabled = true;
-        btn.classList.add('opacity-75', 'cursor-not-allowed');
-        icon.className = "fa-solid fa-spinner fa-spin";
-        text.innerText = "Salvando...";
+        btn.disabled = true; btn.classList.add('opacity-75', 'cursor-not-allowed');
+        icon.className = "fa-solid fa-spinner fa-spin"; text.innerText = "Salvando...";
 
         const payload = buildPayload();
         payload.userId = currentUser.uid;
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'reportes_producao'), payload);
 
-        // Caminho oficial padrão
-        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'reportes_producao');
-        await addDoc(colRef, payload);
-
-        showToast("Apontamento salvo com sucesso no Firebase!", true);
-
-        // Feedback visual no botão
-        icon.className = "fa-solid fa-circle-check text-green-300";
-        text.innerText = "Salvo!";
+        showToast("Apontamento salvo com sucesso!", true);
+        icon.className = "fa-solid fa-circle-check text-green-300"; text.innerText = "Salvo!";
 
         setTimeout(() => {
-          btn.disabled = false;
-          btn.classList.remove('opacity-75', 'cursor-not-allowed');
-          icon.className = "fa-solid fa-cloud-arrow-up";
-          text.innerText = "Salvar Registro";
+          btn.disabled = false; btn.classList.remove('opacity-75', 'cursor-not-allowed');
+          icon.className = "fa-solid fa-cloud-arrow-up"; text.innerText = "Salvar Registro";
         }, 3000);
-
       } catch (error) {
-        console.error("Erro ao salvar no Firestore:", error);
-        if (error.code === 'permission-denied' || error.message?.includes('insufficient permissions')) {
-          showToast("Permissão negada no Firebase. Libere as Regras (Rules) no console.", false);
-        } else {
-          showToast("Erro ao gravar dados no Firebase. Tente novamente.", false);
-        }
-        btn.disabled = false;
-        btn.classList.remove('opacity-75', 'cursor-not-allowed');
-        icon.className = "fa-solid fa-triangle-exclamation text-amber-300";
-        text.innerText = "Erro ao Salvar";
+        showToast("Erro ao gravar dados na nuvem.", false);
+        btn.disabled = false; btn.classList.remove('opacity-75', 'cursor-not-allowed');
+        icon.className = "fa-solid fa-triangle-exclamation text-amber-300"; text.innerText = "Erro ao Salvar";
       }
     };
 
     window.exportHistoryToExcel = async function() {
       const btn = document.getElementById('btnExportHistory');
-      if (!currentUser) {
-        showToast("Aguardando conexão com a nuvem...", false);
-        return;
-      }
+      if (!currentUser) return showToast("Aguardando conexão com a nuvem...", false);
+      if (typeof XLSX === 'undefined') return showToast("Biblioteca de Excel não carregada.", false);
 
       try {
-        if (typeof XLSX === 'undefined') {
-          showToast("Biblioteca de Excel não carregada.", false);
-          return;
-        }
-
-        btn.disabled = true;
-        btn.classList.add('opacity-75');
-
+        btn.disabled = true; btn.classList.add('opacity-75');
         showToast("Buscando registros na nuvem...", true);
-        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'reportes_producao');
-        const querySnapshot = await getDocs(colRef);
+        
+        const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'reportes_producao'));
+        if (querySnapshot.empty) { showToast("Nenhum registro encontrado.", false); btn.disabled = false; btn.classList.remove('opacity-75'); return; }
 
-        if (querySnapshot.empty) {
-          showToast("Nenhum registro encontrado na nuvem para exportar.", false);
-          btn.disabled = false;
-          btn.classList.remove('opacity-75');
-          return;
-        }
-
-        const rowsResumo = [
-          ['ID Registro', 'Carimbo de Data/Hora', 'Data do Turno', 'Turno', 'Líder', 'Total Peças', 'Total Refugos', 'Teve Setup?', 'Teve Manutenção?', 'Faltas', 'Atestados', 'Atrasos', 'Observações Equipe', 'Ocorrências', 'Pendências']
-        ];
-        const rowsProd = [
-          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Família de Produto', 'Código / Modelo', 'Quantidade (un)']
-        ];
-        const rowsRefugo = [
-          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Produto', 'Código da Peça', 'Defeito / Motivo', 'Quantidade (un)']
-        ];
-        const rowsParadas = [
-          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Tipo', 'Equipamento / Máquina', 'Tempo (min)', 'Status', 'Motivo / Descrição']
-        ];
-        const rowsEquipe = [
-          ['ID Registro', 'Data do Turno', 'Turno', 'Líder', 'Tipo de Ausência', 'Colaborador']
-        ];
-
+        const rowsResumo = [['ID Registro', 'Carimbo', 'Setor/Modo', 'Data', 'Turno', 'Líder', 'Total Peças', 'Total Refugos', 'Setup?', 'Manutenção?', 'Faltas', 'Atestados', 'Atrasos', 'Ocorrências', 'Pendências']];
+        const rowsProd = [['ID Registro', 'Setor/Modo', 'Data', 'Turno', 'Líder', 'Família / Processo', 'Código / Modelo', 'Quantidade (un)']];
+        const rowsRefugo = [['ID Registro', 'Data', 'Turno', 'Líder', 'Produto / Processo', 'Código da Peça', 'Defeito / Motivo', 'Quantidade (un)']];
+        const rowsParadas = [['ID Registro', 'Data', 'Turno', 'Líder', 'Tipo', 'Linha / Processo', 'Equipamento / Máquina', 'Tempo (min)', 'Status', 'Motivo / Descrição']];
+        
         querySnapshot.forEach(docSnap => {
-          const rec = docSnap.data();
-          const docId = docSnap.id;
-          const dtStr = rec.dataTurno || '';
-
-          // 1. Resumo
-          rowsResumo.push([
-            docId,
-            rec.criadoEm || '',
-            dtStr,
-            rec.turno || '',
-            rec.lider || '',
-            rec.totalPecas || 0,
-            rec.totalRefugos || 0,
-            rec.teveSetup ? 'Sim' : 'Não',
-            rec.teveManutencao ? 'Sim' : 'Não',
-            rec.equipe?.faltas || 0,
-            rec.equipe?.atestados || 0,
-            rec.equipe?.atrasos || 0,
-            rec.equipe?.observacoes || '',
-            rec.ocorrencias || '',
-            rec.pendencias || ''
-          ]);
-
-          // 2. Produção
-          if (Array.isArray(rec.itensProduzidos)) {
-            rec.itensProduzidos.forEach(p => {
-              rowsProd.push([
-                docId,
-                dtStr,
-                rec.turno || '',
-                rec.lider || '',
-                p.familia || '',
-                p.modelo || '',
-                p.quantidade || 0
-              ]);
-            });
-          }
-
-          // 3. Refugos
-          if (Array.isArray(rec.refugos)) {
-            rec.refugos.forEach(q => {
-              rowsRefugo.push([
-                docId,
-                dtStr,
-                rec.turno || '',
-                rec.lider || '',
-                q.produto || '',
-                q.codigo || '',
-                q.defeito || '',
-                q.quantidade || 0
-              ]);
-            });
-          }
-
-          // 4. Setups e Manutenções
-          if (Array.isArray(rec.setups)) {
-            rec.setups.forEach(s => {
-              rowsParadas.push([
-                docId,
-                dtStr,
-                rec.turno || '',
-                rec.lider || '',
-                'Setup',
-                s.maquina || '',
-                s.tempo || '',
-                '-',
-                s.observacao || ''
-              ]);
-            });
-          }
-          if (Array.isArray(rec.manutencoes)) {
-            rec.manutencoes.forEach(m => {
-              rowsParadas.push([
-                docId,
-                dtStr,
-                rec.turno || '',
-                rec.lider || '',
-                'Manutenção',
-                m.equipamento || '',
-                m.tempo || '',
-                m.status || '',
-                m.motivo || ''
-              ]);
-            });
-          }
-
-          // 5. Equipe
-          if (Array.isArray(rec.equipe?.ausencias)) {
-            rec.equipe.ausencias.forEach(a => {
-              rowsEquipe.push([
-                docId,
-                dtStr,
-                rec.turno || '',
-                rec.lider || '',
-                a.tipo || '',
-                a.colaborador || ''
-              ]);
-            });
-          }
+          const rec = docSnap.data(); const docId = docSnap.id; const dtStr = rec.dataTurno || ''; const modo = rec.tipoApontamento || 'Nacionais';
+          
+          rowsResumo.push([docId, rec.criadoEm || '', modo, dtStr, rec.turno || '', rec.lider || '', rec.totalPecas || 0, rec.totalRefugos || 0, rec.teveSetup ? 'Sim' : 'Não', rec.teveManutencao ? 'Sim' : 'Não', rec.equipe?.faltas || 0, rec.equipe?.atestados || 0, rec.equipe?.atrasos || 0, rec.ocorrencias || '', rec.pendencias || '']);
+          
+          if (Array.isArray(rec.itensProduzidos)) rec.itensProduzidos.forEach(p => rowsProd.push([docId, modo, dtStr, rec.turno || '', rec.lider || '', p.processo || p.familia || '', p.modelo || '', p.quantidade || 0]));
+          if (Array.isArray(rec.refugos)) rec.refugos.forEach(q => rowsRefugo.push([docId, dtStr, rec.turno || '', rec.lider || '', q.produto || '', q.codigo || '', q.defeito || '', q.quantidade || 0]));
+          if (Array.isArray(rec.setups)) rec.setups.forEach(s => rowsParadas.push([docId, dtStr, rec.turno || '', rec.lider || '', 'Setup', '-', s.maquina || '', s.tempo || '', '-', s.observacao || '']));
+          if (Array.isArray(rec.manutencoes)) rec.manutencoes.forEach(m => rowsParadas.push([docId, dtStr, rec.turno || '', rec.lider || '', 'Manutenção', m.linha || '-', m.equipamento || '', m.tempo || '', m.status || '', m.motivo || '']));
         });
 
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsResumo), 'Resumo_Turnos');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsResumo), 'Resumo_Geral');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsProd), 'Producao_Detalhada');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsRefugo), 'Refugo_Qualidade');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsParadas), 'Paradas_e_Setups');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rowsEquipe), 'Gestao_Equipe');
-
-        XLSX.writeFile(wb, 'Historico_Consolidado_Producao_TBX.xlsx');
-        showToast("Histórico completo exportado com sucesso!", true);
-        closeExcelModal();
-
+        
+        XLSX.writeFile(wb, 'Historico_Consolidado_Producao.xlsx');
+        showToast("Histórico completo exportado!", true); closeExcelModal();
       } catch (err) {
-        console.error("Erro ao exportar histórico:", err);
         showToast("Erro ao exportar histórico da nuvem.", false);
       } finally {
-        btn.disabled = false;
-        btn.classList.remove('opacity-75');
+        btn.disabled = false; btn.classList.remove('opacity-75');
       }
     };
 
-    // Inicia conexão do Firebase
     initFirebase();
   </script>
 </body>
