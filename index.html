@@ -509,9 +509,6 @@
 
   </main>
 
-  <!-- Lista de modelos para autocomplete (Estamparia) -->
-  <datalist id="allModelsListEstamparia"></datalist>
-
   <!-- Modal de Opções de Exportação para Excel -->
   <div id="modalExcel" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col">
@@ -621,16 +618,6 @@
         document.getElementById('headerDate').innerText = formatDateBR(e.target.value);
       });
 
-      // Preenche o datalist de modelos (Estamparia)
-      const datalistEst = document.getElementById('allModelsListEstamparia');
-      if (datalistEst) {
-        MODEL_OPTIONS_EST.forEach(model => {
-          const opt = document.createElement('option');
-          opt.value = model;
-          datalistEst.appendChild(opt);
-        });
-      }
-
       // Inicializa as linhas de Nacionais
       Object.keys(MODEL_OPTIONS_NAC).forEach(cat => addProdRow(cat));
       // Inicializa as linhas de Estamparia
@@ -641,16 +628,6 @@
       
       // Aplica modo padrão
       setAppMode('nacionais');
-    });
-
-    // Força preenchimento em CAIXA ALTA em todos os inputs de texto e textareas
-    document.addEventListener('input', function(e) {
-      if ((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
-        const start = e.target.selectionStart;
-        const end = e.target.selectionEnd;
-        e.target.value = e.target.value.toUpperCase();
-        e.target.setSelectionRange(start, end);
-      }
     });
 
     function formatDateBR(dateStr) {
@@ -746,7 +723,9 @@
       let modelInputHtml = '';
 
       if (isEstamparia) {
-        modelInputHtml = `<input type="text" list="allModelsListEstamparia" placeholder="Código/Nome do Item" class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">`;
+        let optionsCode = `<option value="">Selecione o Modelo...</option>`;
+        MODEL_OPTIONS_EST.forEach(opt => { optionsCode += `<option value="${opt}">${opt}</option>`; });
+        modelInputHtml = `<select class="input-modelo flex-1 bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">${optionsCode}</select>`;
       } else {
         const opts = MODEL_OPTIONS_NAC[cat];
         if (opts && opts.length > 0) {
@@ -1065,6 +1044,11 @@
       list.appendChild(div);
     }
 
+    // Função para forçar sublinhado em ambientes que não suportam markdown de sublinhado (como WhatsApp)
+    function underlineText(text) {
+      return text.split('').map(char => char + '\u0332').join('');
+    }
+
     function generateReportText() {
       const dataStr = formatDateBR(document.getElementById('inputData').value);
       const turno = document.getElementById('inputTurno').value;
@@ -1155,8 +1139,12 @@
           const obs = item.querySelector('.setup-obs').value.trim();
           if (maq || tempo || obs) {
             count++;
-            txt += `• Setup #${idx + 1}: ${maq || 'Equipamento não especificado'}\n`;
-            if (tempo) txt += `  - Duração: ${tempo}\n`;
+            const setupLabel = currentMode === 'estamparia' ? 'Processo/Máquina' : 'Máquina/Linha';
+            txt += `• Setup #${idx + 1} - ${underlineText(setupLabel)}: ${maq || 'Não especificado'}\n`;
+            if (tempo) {
+              const tempoStr = tempo.toLowerCase().includes('min') || tempo.toLowerCase().includes('h') ? tempo : `${tempo} min`;
+              txt += `  - Duração: ${tempoStr}\n`;
+            }
             if (obs) txt += `  - Observação: ${obs}\n`;
           }
         });
@@ -1179,9 +1167,12 @@
           const motivo = item.querySelector('.maint-motivo').value.trim();
           if (linha || maq || tempo || motivo) {
             count++;
-            txt += `• Linha/Processo: ${linha || 'Não especificado'}\n`;
+            txt += `• ${underlineText('Linha/Processo')}: ${linha || 'Não especificado'}\n`;
             if (maq) txt += `  - Equipamento: ${maq}\n`;
-            if (tempo) txt += `  - Tempo Parado: ${tempo}\n`;
+            if (tempo) {
+              const tempoStr = tempo.toLowerCase().includes('min') || tempo.toLowerCase().includes('h') ? tempo : `${tempo} min`;
+              txt += `  - Tempo Parado: ${tempoStr}\n`;
+            }
             txt += `  - Status: ${status}\n`;
             if (motivo) txt += `  - Motivo: ${motivo}\n`;
           }
@@ -1207,7 +1198,8 @@
             count++;
             const itemLabel = prod ? prod : (currentMode === 'estamparia' ? 'Processo não informado' : 'Produto não informado');
             const codLabel = cod ? ` (${cod})` : '';
-            txt += `• ${itemLabel}${codLabel}\n`;
+            const prefixLabel = currentMode === 'estamparia' ? 'Processo' : 'Produto';
+            txt += `• ${underlineText(prefixLabel)}: ${itemLabel}${codLabel}\n`;
             txt += `  - Quantidade: ${qtd} un.\n`;
             txt += `  - Motivo/Defeito: ${def || 'Não especificado'}\n`;
           }
